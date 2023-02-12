@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2" # For nannou not to use dx12 and metal deps and start normally
+members = [
+    "lab1",
+]
+
+[workspace.dependencies]
+nannou = "0.18.1"
+nannou_egui = "0.5.0"
