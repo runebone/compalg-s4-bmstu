@@ -6,8 +6,9 @@ pub trait Printable {
 
 impl Printable for Table {
     fn print(self) {
-        for i in 0..self.records.len() {
-            let r = &self.records[i];
+        let records = self.get_records();
+        for i in 0..records.len() {
+            let r = &records[i];
             println!("{}. x({:4}) y({:8}) dydx({:8})", i + 1, r.x, r.y, r.dydx);
         }
     }

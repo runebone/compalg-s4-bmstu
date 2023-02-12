@@ -1,5 +1,4 @@
 use std::fs;
-use std::ops::Index;
 
 pub struct Record {
     pub x: f64,
@@ -8,7 +7,7 @@ pub struct Record {
 }
 
 pub struct Table {
-    pub records: Vec<Record>,
+    records: Vec<Record>,
 }
 
 impl Table {
@@ -34,13 +33,8 @@ impl Table {
 
         Table { records: v }
     }
-}
 
-// Overloading indexing operator to use table[i] instead of table.records[i]
-impl Index<usize> for Table {
-    type Output = Record;
-
-    fn index(&self, index: usize) -> &Record {
-        &self.records[index]
+    pub fn get_records(&self) -> &Vec<Record> {
+        &self.records
     }
 }
