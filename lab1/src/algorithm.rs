@@ -1,4 +1,4 @@
-pub fn get_newton_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, n: usize, x: f64) -> Box<dyn Fn(f64) -> f64> {
+pub fn get_newton_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, x: f64, n: usize) -> Box<dyn Fn(f64) -> f64> {
     let x_nearest_index = find_index_of_nearest_x(&xs, x);
     let (start, end) = choose_n_nearest_points(n + 1, xs.len(), x_nearest_index);
 
@@ -10,7 +10,8 @@ pub fn get_newton_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, n: usize, x: 
     // [n - 1] -> P(x0, x1, ..., x{n - 1})
     let dds: Vec<f64> = newton_calculate_dds(&xs, &ys, start, end);
 
-    dbg!(&dds);
+    // dbg!(&dds);
+    // dbg!(&x_nearest_index, &start, &end);
 
     interpolate_helper(xs[start..=end].to_vec(), dds)
 }
@@ -54,7 +55,7 @@ pub fn newton_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: usi
     dds_vec
 }
 
-pub fn get_hermite_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, n: usize, x: f64) -> Box<dyn Fn(f64) -> f64> {
+pub fn get_hermite_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, x: f64, n: usize) -> Box<dyn Fn(f64) -> f64> {
     // FIXME: DRY
     let x_nearest_index = find_index_of_nearest_x(&xs, x);
     let (start, end) = choose_n_nearest_points(n / 2 + 1, xs.len(), x_nearest_index);
@@ -62,7 +63,7 @@ pub fn get_hermite_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<
 
     let dds: Vec<f64> = hermite_calculate_dds(&xs, &ys, &dydxs, start, end);
 
-    dbg!(&dds);
+    // dbg!(&dds);
 
     interpolate_helper(xs_new[0..xs_new.len()].to_vec(), dds)
 }

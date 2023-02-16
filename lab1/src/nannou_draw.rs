@@ -1,28 +1,33 @@
 extern crate nannou;
 use nannou::prelude::*;
 
-use crate::util;
+use crate::data;
 
+type MyFunc = Box<dyn Fn(f64) -> f64>;
+
+// TODO: clean-up this hell
+// TODO: add egui
 pub struct Model {
-    x: f64,
-    // n: usize,
-    fn_newton: Box<dyn Fn(f64) -> f64>,
-    fn_hermite: Box<dyn Fn(f64) -> f64>,
+    // pub x: f64,
+    // pub fn_newton: Box<dyn Fn(f64) -> f64>,
+    // pub fn_hermite: Box<dyn Fn(f64) -> f64>,
+
+    pub funcs: &'static mut Vec<(f64, Box<dyn Fn(f64) -> f64>)>,
+}
+
+impl Model {
+    pub fn push(self: &mut Self, data: (f64, Box<dyn Fn(f64) -> f64>)) {
+        self.funcs.push(data);
+    }
+
+    pub fn get_data(self: &Self) -> &Vec<(f64, Box<dyn Fn(f64) -> f64>)> {
+        &self.funcs
+    }
 }
 
 pub fn model(_app: &App) -> Model {
-    let filename: &str = "/home/human/University/compalg/lab1/lec.csv";
-    let x = 0.6;
-    let n = 5;
-    let nfunc = util::newton(filename, x, n);
-    let hfunc = util::hermite(filename, x, n);
-
-    Model {
-        x,
-        // n,
-        fn_newton: nfunc,
-        fn_hermite: hfunc,
-    }
+    // data::get_model_with_data()
+    data::get_model()
 }
 
 pub fn update(_app: &App, _model: &mut Model, _update: Update) {
@@ -38,38 +43,67 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     let win = app.window_rect();
     let _t = app.time;
 
-    let nfunc = &model.fn_newton;
-    let hfunc = &model.fn_hermite;
-
     // Decide on a number of points and a weight.
     let n_points = 1000;
-    let weight = 1.0;
     let lx = -3.0;
     let rx = 3.0;
     let s = 200.0;
 
-    let mx = model.x.to_f32().unwrap();
-    let yn = |x: f32| nfunc(x.to_f64().unwrap()).to_f32().unwrap();
-    let yh = |x: f32| hfunc(x.to_f64().unwrap()).to_f32().unwrap();
+    draw_grid(&draw, &win, s);
 
-    let nvertices = (0..n_points)
+    let d = model.get_data();
+    let df = |f, color| draw_func(&draw, f, n_points, s, lx, rx, color);
+    // df(&d[2].1, srgba(0.0, 1.0, 0.0, 1.0));
+    // df(&d[0].1, srgba(1.0, 0.0, 0.0, 1.0));
+    // df(&d[1].1, srgba(0.0, 0.0, 1.0, 1.0));
+    
+    let t = data::get_tmp();
+    draw_points(&draw, &t[0], &t[1], srgba(1.0, 0.0, 0.0, 1.0), 3.0, s);
+    draw_points(&draw, &t[2], &t[3], srgba(0.0, 0.0, 1.0, 1.0), 3.0, s);
+    draw_points(&draw, &t[0], &t[4], srgba(1.0, 0.0, 1.0, 1.0), 3.0, s);
+    draw_points(&draw, &t[4], &t[0], srgba(1.0, 0.0, 1.0, 1.0), 3.0, s);
+
+    df(&d[3].1, srgba(1.0, 0.0, 0.0, 1.0));
+    df(&d[4].1, srgba(0.0, 0.0, 1.0, 1.0));
+    df(&d[5].1, srgba(1.0, 0.0, 1.0, 1.0));
+    df(&d[2].1, srgba(1.0, 0.0, 1.0, 1.0));
+
+    // draw_points(&draw, &vec![0.78], &vec![0.0], srgba(1.0, 1.0, 1.0, 1.0), 5.0, s);
+    draw_root(&draw, &win, s, 0.78);
+
+    // Draw the polyline as a stroked path.
+    // Write the result of our drawing to the window's frame.
+    draw.to_frame(app, &frame).unwrap();
+}
+
+fn draw_points(draw: &Draw, xs: &Vec<f64>, ys: &Vec<f64>, color: Srgba, weight: f32, scale: f32) {
+    for i in 0..xs.len() {
+        draw.ellipse()
+            .color(color)
+            .w(weight)
+            .h(weight)
+            .x_y(scale * xs[i].to_f32().unwrap(), scale * ys[i].to_f32().unwrap());
+    }
+}
+
+fn draw_func(draw: &Draw, func: &MyFunc, n_points: usize, scale: f32, left_x: f32, right_x: f32, color: Srgba) {
+    let weight = 1.0;
+    let y = |x: f32| func(x.to_f64().unwrap()).to_f32().unwrap();
+
+    let vertices = (0..n_points)
         .map(|i| {
-            let x = map_range(i, 0, n_points - 1, lx, rx);
-            pt2(s * x, s * yn(x))
+            let x = map_range(i, 0, n_points - 1, left_x, right_x);
+            pt2(scale * x, scale * y(x))
         });
 
-    let hvertices = (0..n_points)
-        .map(|i| {
-            let x = map_range(i, 0, n_points - 1, lx, rx);
-            pt2(s * x, s * yh(x))
-        });
+    draw.polyline()
+        .weight(weight)
+        .join_round()
+        .points(vertices)
+        .color(color);
+}
 
-    let cvertices = (0..n_points)
-        .map(|i| {
-            let x = map_range(i, 0, n_points - 1, lx, rx);
-            pt2(s * x, s * (PI / 2.0 * x).cos())
-        });
-
+fn draw_grid(draw: &Draw, win: &Rect, s: f32) {
     draw.line()
         .start(pt2(win.left(), 0.0))
         .end(pt2(win.right(), 0.0))
@@ -120,57 +154,14 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 
         i += 1.0;
     }
+}
 
+fn draw_root(draw: &Draw, win: &Rect, s: f32, x: f32) {
     draw.line()
-        .start(pt2(s * mx, win.top()))
-        .end(pt2(s * mx, win.bottom()))
+        .start(pt2(s * x, win.top()))
+        .end(pt2(s * x, win.bottom()))
         .weight(1.0)
         .color(GREY);
 
-    draw.text(&(mx).to_string()).x_y(s * mx, -5.0);
-
-    // Draw the polyline as a stroked path.
-    draw.polyline()
-        .weight(weight)
-        .join_round()
-        .points(nvertices)
-        .color(srgba(1.0, 0.0, 0.0, 1.0));
-
-    draw.polyline()
-        .weight(weight)
-        .join_round()
-        .points(hvertices)
-        .color(srgba(0.0, 0.0, 1.0, 1.0));
-
-    draw.polyline()
-        .weight(weight)
-        .join_round()
-        .points(cvertices)
-        .color(srgba(0.0, 1.0, 0.0, 1.0));
-
-    draw.ellipse()
-        .color(WHITE)
-        .w(weight + 2.0)
-        .h(weight + 2.0)
-        .x_y(s * mx, s * (PI / 2.0 * mx).cos());
-    // draw.text(&((PI / 2.0 * mx).cos()).to_string()).x_y(25.0 + s * mx + 5.0, s * (PI / 2.0 * mx).cos());
-
-    draw.ellipse()
-        .color(WHITE)
-        .w(weight + 2.0)
-        .h(weight + 2.0)
-        .x_y(s * mx, s * yn(mx));
-    // draw.text(&(yn(mx)).to_string()).x_y(25.0 + s * mx, s * yn(mx));
-
-    draw.ellipse()
-        .color(WHITE)
-        .w(weight + 2.0)
-        .h(weight + 2.0)
-        .x_y(s * mx, s * yh(mx));
-    // draw.text(&(yh(mx)).to_string()).x_y(25.0 + s * mx, s * yh(mx));
-
-
-    // Write the result of our drawing to the window's frame.
-    draw.to_frame(app, &frame).unwrap();
+    draw.text(&(x).to_string()).x_y(s * x, -5.0);
 }
-
