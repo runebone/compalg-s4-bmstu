@@ -73,7 +73,7 @@ fn main() {
 
     println!("Задание 3");
     {
-        let x_interp = 0.0;
+        let x_interp = 0.78;
         let n = 5;
 
         let (xs1, ys1) = util::read_xy_from_file("./lab1/3_1.csv");
@@ -85,7 +85,6 @@ fn main() {
         // Interpolate ys2 based on xs from the 1st table
         let interp_func = algorithm::get_newton_interpolation_func(&xs2, &ys2, x_interp, n);
         for x in &xs1 {
-            // ys2i.push(algorithm::get_newton_interpolation_func(&xs2, &ys2, *x, n)(*x));
             ys2i.push(interp_func(*x));
         }
 
@@ -95,7 +94,7 @@ fn main() {
             ys_diff.push(ys2i[i] - ys1[i]);
         }
 
-        let func = algorithm::get_newton_interpolation_func(&ys_diff, &xs1, 0.2, 2);
+        let func = algorithm::get_newton_interpolation_func(&ys_diff, &xs1, 0.0, n);
         let root: f64 = func(0.0);
 
         data::push((0.0, func));
@@ -106,9 +105,9 @@ fn main() {
         data::push_tmp(ys2.to_vec());
         data::push_tmp(ys_diff.to_vec());
 
-        let f1 = algorithm::get_newton_interpolation_func(&xs1, &ys1, x_interp, 5);
-        let f2 = algorithm::get_newton_interpolation_func(&xs2, &ys2, x_interp, 5);
-        let f3 = algorithm::get_newton_interpolation_func(&xs1, &ys_diff, x_interp, 5);
+        let f1 = algorithm::get_newton_interpolation_func(&xs1, &ys1, x_interp, n);
+        let f2 = interp_func;
+        let f3 = algorithm::get_newton_interpolation_func(&xs1, &ys_diff, x_interp, n);
         data::push((x_interp, f1));
         data::push((x_interp, f2));
         data::push((x_interp, f3));
