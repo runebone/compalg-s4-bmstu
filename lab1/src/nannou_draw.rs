@@ -66,7 +66,7 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     df(&d[3].1, srgba(1.0, 0.0, 0.0, 1.0));
     df(&d[4].1, srgba(0.0, 0.0, 1.0, 1.0));
     df(&d[5].1, srgba(1.0, 0.0, 1.0, 1.0));
-    df(&d[2].1, srgba(1.0, 0.0, 1.0, 1.0));
+    df(&d[2].1, srgba(0.0, 1.0, 0.0, 1.0));
 
     // draw_points(&draw, &vec![0.78], &vec![0.0], srgba(1.0, 1.0, 1.0, 1.0), 5.0, s);
     draw_root(&draw, &win, s, 0.78);
