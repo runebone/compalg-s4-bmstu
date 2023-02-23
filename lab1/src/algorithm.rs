@@ -58,34 +58,36 @@ pub fn newton_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: usi
 pub fn get_hermite_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, x: f64, n: usize) -> Box<dyn Fn(f64) -> f64> {
     // FIXME: DRY
     let x_nearest_index = find_index_of_nearest_x(&xs, x);
+    
+    // We are sure that every point has a derivative, that's why (n / 2 + 1)
     let (start, end) = choose_n_nearest_points(n / 2 + 1, xs.len(), x_nearest_index);
-    let (xs_new, _) = hermite_transform_table_xy(xs, ys, start, end);
+    let (xs_new, _) = hermite_transform_table_xy(xs, ys, start, end, n);
 
-    let dds: Vec<f64> = hermite_calculate_dds(&xs, &ys, &dydxs, start, end);
+    let dds: Vec<f64> = hermite_calculate_dds(&xs, &ys, &dydxs, start, end, n);
 
     // dbg!(&dds);
 
     interpolate_helper(xs_new[0..xs_new.len()].to_vec(), dds)
 }
 
-pub fn hermite_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, start: usize, end: usize) -> Vec<f64> {
+pub fn hermite_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, start: usize, end: usize, n: usize) -> Vec<f64> {
     // FIXME: DRY
     // TODO: create func hermite_init(...) to take care of diff 1
 
     // Diff 1:
-    let (xs_new, ys_new) = hermite_transform_table_xy(xs, ys, start, end);
-    let n = xs_new.len() - 1;
+    let (xs_new, ys_new) = hermite_transform_table_xy(xs, ys, start, end, n);
+    let m = xs_new.len() - 1;
 
     let mut vddv: Vec<Vec<f64>> = Vec::new();
     let mut k = 0;
 
-    vddv.push(ys_new[..=n].to_vec());
+    vddv.push(ys_new[..=m].to_vec());
     // ---
 
-    for _ in 0..n {
+    for _ in 0..m {
         vddv.push(Vec::new()); // Reserve space for new dd-vector
 
-        for i in 0..n - k {
+        for i in 0..m - k {
             // TODO: maybe create a func which takes vddv, xs, dydxs k, i as
             // an arg and returns dd: hermite_calculate_dd(...)
 
@@ -119,7 +121,7 @@ pub fn hermite_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, sta
     dds_vec
 }
 
-fn hermite_transform_table_xy(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: usize) -> (Vec<f64>, Vec<f64>) {
+fn hermite_transform_table_xy(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: usize, n: usize) -> (Vec<f64>, Vec<f64>) {
     let mut xs_new: Vec<f64> = Vec::new();
     let mut ys_new: Vec<f64> = Vec::new();
 
@@ -129,6 +131,12 @@ fn hermite_transform_table_xy(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: u
 
         ys_new.push(ys[i]);
         ys_new.push(ys[i]);
+    }
+
+    // FIXME: Crutch. If n was odd, it would give us n+1 points.
+    if n % 2 != 0 {
+        xs_new.pop();
+        ys_new.pop();
     }
 
     (xs_new, ys_new)
