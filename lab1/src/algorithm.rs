@@ -32,7 +32,7 @@ pub fn newton_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: usi
 
         for i in 0..n - k {
             let numerator = vddv[k][i] - vddv[k][i + 1];
-            let denominator = xs[i] - xs[i + k + 1];
+            let denominator = xs[start + i] - xs[start + i + k + 1];
 
             assert_ne!(denominator, 0.0);
             let dd = numerator / denominator;
