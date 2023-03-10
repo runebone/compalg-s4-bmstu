@@ -108,6 +108,9 @@ fn main() {
         let f1 = algorithm::get_newton_interpolation_func(&xs1, &ys1, x_interp, n);
         let f2 = interp_func;
         let f3 = algorithm::get_newton_interpolation_func(&xs1, &ys_diff, x_interp, n);
+
+        let y = f1(root);
+        dbg!(y);
         data::push((x_interp, f1));
         data::push((x_interp, f2));
         data::push((x_interp, f3));
