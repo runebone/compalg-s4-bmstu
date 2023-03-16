@@ -21,7 +21,8 @@ pub fn read_data_from_file(filename: &str) -> Vec<Vec<f64>> {
 
     for line in &lines[1..] {
         if line.len() > 0 {
-            let values: Vec<f64> = line.split(",")
+            let values: Vec<f64> = line
+                .split(",")
                 .into_iter()
                 .map(|s| s.parse::<f64>().unwrap())
                 .collect();

@@ -2,10 +2,10 @@ use std::env;
 
 use crate::nannou_draw::{model, update, view};
 
-mod util;
-mod data;
 mod algorithm;
+mod data;
 mod nannou_draw;
+mod util;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -51,22 +51,38 @@ fn main() {
         println!("Hermite: {:.6}", x_hermite);
         println!();
 
-        println!("{:>2} | {:>9} | {:>9} (x_newton = {:.3})", "n", "Newton", "Hermite", x_newton);
+        println!(
+            "{:>2} | {:>9} | {:>9} (x_newton = {:.3})",
+            "n", "Newton", "Hermite", x_newton
+        );
         for n in 1..=5 {
             let fn_newton = util::newton(filename, x_newton, n);
             let fn_hermite = util::hermite(filename, x_newton, n);
 
-            println!("{:2} | {:9.6} | {:9.6}", n, fn_newton(x_newton), fn_hermite(x_newton));
+            println!(
+                "{:2} | {:9.6} | {:9.6}",
+                n,
+                fn_newton(x_newton),
+                fn_hermite(x_newton)
+            );
         }
 
         println!();
 
-        println!("{:>2} | {:>9} | {:>9} (x_hermite = {:.3})", "n", "Newton", "Hermite", x_hermite);
+        println!(
+            "{:>2} | {:>9} | {:>9} (x_hermite = {:.3})",
+            "n", "Newton", "Hermite", x_hermite
+        );
         for n in 1..=5 {
             let fn_newton = util::newton(filename, x_hermite, n);
             let fn_hermite = util::hermite(filename, x_hermite, n);
 
-            println!("{:2} | {:9.6} | {:9.6}", n, fn_newton(x_hermite), fn_hermite(x_hermite));
+            println!(
+                "{:2} | {:9.6} | {:9.6}",
+                n,
+                fn_newton(x_hermite),
+                fn_hermite(x_hermite)
+            );
         }
     }
     println!();
@@ -120,9 +136,5 @@ fn main() {
     }
     println!();
 
-    nannou::app(model)
-        .update(update)
-        .simple_window(view)
-        .run();
+    nannou::app(model).update(update).simple_window(view).run();
 }
-

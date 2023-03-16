@@ -36,7 +36,9 @@ pub fn push(data: (f64, Box<dyn Fn(f64) -> f64>)) {
 }
 
 pub fn get_model() -> Model {
-    Model { funcs: unsafe { &mut FUNCS } }
+    Model {
+        funcs: unsafe { &mut FUNCS },
+    }
 }
 
 // pub fn get_model_with_data() -> Model {

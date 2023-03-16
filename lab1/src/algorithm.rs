@@ -1,4 +1,9 @@
-pub fn get_newton_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, x: f64, n: usize) -> Box<dyn Fn(f64) -> f64> {
+pub fn get_newton_interpolation_func(
+    xs: &Vec<f64>,
+    ys: &Vec<f64>,
+    x: f64,
+    n: usize,
+) -> Box<dyn Fn(f64) -> f64> {
     let x_nearest_index = find_index_of_nearest_x(&xs, x);
     let (start, end) = choose_n_nearest_points(n + 1, xs.len(), x_nearest_index);
 
@@ -55,10 +60,16 @@ pub fn newton_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: usi
     dds_vec
 }
 
-pub fn get_hermite_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, x: f64, n: usize) -> Box<dyn Fn(f64) -> f64> {
+pub fn get_hermite_interpolation_func(
+    xs: &Vec<f64>,
+    ys: &Vec<f64>,
+    dydxs: &Vec<f64>,
+    x: f64,
+    n: usize,
+) -> Box<dyn Fn(f64) -> f64> {
     // FIXME: DRY
     let x_nearest_index = find_index_of_nearest_x(&xs, x);
-    
+
     // We are sure that every point has a derivative, that's why (n / 2 + 1)
     let (start, end) = choose_n_nearest_points(n / 2 + 1, xs.len(), x_nearest_index);
     let (xs_new, _) = hermite_transform_table_xy(xs, ys, start, end, n);
@@ -70,7 +81,14 @@ pub fn get_hermite_interpolation_func(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<
     interpolate_helper(xs_new[0..xs_new.len()].to_vec(), dds)
 }
 
-pub fn hermite_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, start: usize, end: usize, n: usize) -> Vec<f64> {
+pub fn hermite_calculate_dds(
+    xs: &Vec<f64>,
+    ys: &Vec<f64>,
+    dydxs: &Vec<f64>,
+    start: usize,
+    end: usize,
+    n: usize,
+) -> Vec<f64> {
     // FIXME: DRY
     // TODO: create func hermite_init(...) to take care of diff 1
 
@@ -121,7 +139,13 @@ pub fn hermite_calculate_dds(xs: &Vec<f64>, ys: &Vec<f64>, dydxs: &Vec<f64>, sta
     dds_vec
 }
 
-fn hermite_transform_table_xy(xs: &Vec<f64>, ys: &Vec<f64>, start: usize, end: usize, n: usize) -> (Vec<f64>, Vec<f64>) {
+fn hermite_transform_table_xy(
+    xs: &Vec<f64>,
+    ys: &Vec<f64>,
+    start: usize,
+    end: usize,
+    n: usize,
+) -> (Vec<f64>, Vec<f64>) {
     let mut xs_new: Vec<f64> = Vec::new();
     let mut ys_new: Vec<f64> = Vec::new();
 
@@ -156,7 +180,11 @@ fn interpolate_helper(xs: Vec<f64>, dds: Vec<f64>) -> Box<dyn Fn(f64) -> f64> {
     })
 }
 
-pub fn choose_n_nearest_points(n: usize, total_points: usize, current_point_index: usize) -> (usize, usize) {
+pub fn choose_n_nearest_points(
+    n: usize,
+    total_points: usize,
+    current_point_index: usize,
+) -> (usize, usize) {
     assert!(n <= total_points);
     assert!(current_point_index < total_points);
 

@@ -11,7 +11,6 @@ pub struct Model {
     // pub x: f64,
     // pub fn_newton: Box<dyn Fn(f64) -> f64>,
     // pub fn_hermite: Box<dyn Fn(f64) -> f64>,
-
     pub funcs: &'static mut Vec<(f64, Box<dyn Fn(f64) -> f64>)>,
 }
 
@@ -30,8 +29,7 @@ pub fn model(_app: &App) -> Model {
     data::get_model()
 }
 
-pub fn update(_app: &App, _model: &mut Model, _update: Update) {
-}
+pub fn update(_app: &App, _model: &mut Model, _update: Update) {}
 
 pub fn view(app: &App, model: &Model, frame: Frame) {
     // Begin drawing
@@ -56,7 +54,7 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     // df(&d[2].1, srgba(0.0, 1.0, 0.0, 1.0));
     // df(&d[0].1, srgba(1.0, 0.0, 0.0, 1.0));
     // df(&d[1].1, srgba(0.0, 0.0, 1.0, 1.0));
-    
+
     let t = data::get_tmp();
     draw_points(&draw, &t[0], &t[1], srgba(1.0, 0.0, 0.0, 1.0), 3.0, s);
     draw_points(&draw, &t[2], &t[3], srgba(0.0, 0.0, 1.0, 1.0), 3.0, s);
@@ -78,23 +76,29 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 
 fn draw_points(draw: &Draw, xs: &Vec<f64>, ys: &Vec<f64>, color: Srgba, weight: f32, scale: f32) {
     for i in 0..xs.len() {
-        draw.ellipse()
-            .color(color)
-            .w(weight)
-            .h(weight)
-            .x_y(scale * xs[i].to_f32().unwrap(), scale * ys[i].to_f32().unwrap());
+        draw.ellipse().color(color).w(weight).h(weight).x_y(
+            scale * xs[i].to_f32().unwrap(),
+            scale * ys[i].to_f32().unwrap(),
+        );
     }
 }
 
-fn draw_func(draw: &Draw, func: &MyFunc, n_points: usize, scale: f32, left_x: f32, right_x: f32, color: Srgba) {
+fn draw_func(
+    draw: &Draw,
+    func: &MyFunc,
+    n_points: usize,
+    scale: f32,
+    left_x: f32,
+    right_x: f32,
+    color: Srgba,
+) {
     let weight = 1.0;
     let y = |x: f32| func(x.to_f64().unwrap()).to_f32().unwrap();
 
-    let vertices = (0..n_points)
-        .map(|i| {
-            let x = map_range(i, 0, n_points - 1, left_x, right_x);
-            pt2(scale * x, scale * y(x))
-        });
+    let vertices = (0..n_points).map(|i| {
+        let x = map_range(i, 0, n_points - 1, left_x, right_x);
+        pt2(scale * x, scale * y(x))
+    });
 
     draw.polyline()
         .weight(weight)
@@ -133,7 +137,7 @@ fn draw_grid(draw: &Draw, win: &Rect, s: f32) {
 
         i += 1.0;
     }
-    
+
     i = 1.0;
     while i * s <= win.right() {
         draw.line()
