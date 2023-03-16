@@ -35,15 +35,15 @@ impl<'a> CubicSpline<'a> {
         let mut eta: Vec<f64> = Vec::new();
 
         ksi.push(0.0);
-        eta.push(self.l_edge_c);
+        eta.push(self.l_edge_c / 2.0);
 
         calculate_run_coefficients(&mut ksi, &mut eta, &h, &self.data);
 
         let n = self.data.len();
         let mut c: Vec<f64> = vec![0.0; n];
 
-        c[0] = self.l_edge_c;
-        c[n - 1] = self.r_edge_c;
+        c[0] = self.l_edge_c / 2.0;
+        c[n - 1] = self.r_edge_c / 2.0;
 
         calculate_c_coefficients(&mut c, &ksi, &eta);
 
