@@ -9,7 +9,7 @@ use error::CustomError;
 mod point;
 use point::Point;
 
-mod algorithm;
+mod cubic_spline;
 mod edge;
 
 fn main() -> Result<(), CustomError> {
@@ -25,16 +25,24 @@ fn main() -> Result<(), CustomError> {
         Err(e) => return Err(CustomError::new(&e.to_string())),
     };
 
-    let numbers: Vec<Point<f64>> = match parse_file_contents(contents) {
-        Ok(n) => n,
+    let data: Vec<Point<f64>> = match parse_file_contents(contents) {
+        Ok(data) => data,
         Err(e) => return Err(e),
     };
 
-    // println!("Input x (f64): ");
-    // let x: f64 = match input_f64() {
-    //     Ok(value) => value,
-    //     Err(e) => return Err(e),
-    // };
+    println!("Input x (f64): ");
+    let x: f64 = match input_f64() {
+        Ok(value) => value,
+        Err(e) => return Err(e),
+    };
+    
+    let mut cs = cubic_spline::CubicSpline::new(&data);
+
+    cs.compute();
+
+    let f = cs.func();
+
+    dbg!(f(x));
 
     return Ok(());
 }
