@@ -6,6 +6,12 @@ use std::collections::VecDeque;
 mod error;
 use error::CustomError;
 
+mod point;
+use point::Point;
+
+mod edge;
+mod algorithm;
+
 fn main() -> Result<(), CustomError> {
     let args: Vec<String> = env::args().collect();
     let mut filename: &str = "./lab2/data.csv";
@@ -19,7 +25,7 @@ fn main() -> Result<(), CustomError> {
         Err(e) => return Err(CustomError::new(&e.to_string())),
     };
 
-    let numbers: Vec<f64> = match parse_file_contents(contents) {
+    let numbers: Vec<Point<f64>> = match parse_file_contents(contents) {
         Ok(n) => n,
         Err(e) => return Err(e),
     };
@@ -44,7 +50,7 @@ fn read_file_contents(path: &str) -> Result<String, io::Error> {
     return Ok(contents);
 }
 
-fn parse_file_contents(contents: String) -> Result<Vec<f64>, CustomError> {
+fn parse_file_contents(contents: String) -> Result<Vec<Point<f64>>, CustomError> {
     let mut words: VecDeque<&str> = contents
         .lines()
         .flat_map(|line| line.split_whitespace())
@@ -60,20 +66,28 @@ fn parse_file_contents(contents: String) -> Result<Vec<f64>, CustomError> {
         None => return Err(CustomError::new("Empty file.")),
     }
 
-    let mut numbers: Vec<f64> = Vec::new();
+    let mut numbers: VecDeque<f64> = VecDeque::new();
     for word in &words {
         let number = match word.parse::<f64>() {
             Ok(value) => value,
             Err(e) => return Err(CustomError::new(&e.to_string())),
         };
-        numbers.push(number);
+        numbers.push_back(number);
     }
 
     if numbers.len() % 2 != 0 {
         return Err(CustomError::new("Not enough data."));
     }
 
-    return Ok(numbers);
+    let mut points: Vec<Point<f64>> = Vec::new();
+    while numbers.len() > 0 {
+        let x = numbers.pop_front().unwrap();
+        let y = numbers.pop_front().unwrap();
+
+        points.push(Point{ x, y });
+    }
+
+    return Ok(points);
 }
 
 fn input_f64() -> Result<f64, CustomError> {
