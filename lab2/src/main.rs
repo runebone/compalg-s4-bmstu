@@ -1,7 +1,7 @@
+use std::collections::VecDeque;
 use std::env;
 use std::fs::File;
 use std::io::{self, Read};
-use std::collections::VecDeque;
 
 mod error;
 use error::CustomError;
@@ -9,8 +9,8 @@ use error::CustomError;
 mod point;
 use point::Point;
 
-mod edge;
 mod algorithm;
+mod edge;
 
 fn main() -> Result<(), CustomError> {
     let args: Vec<String> = env::args().collect();
@@ -62,7 +62,7 @@ fn parse_file_contents(contents: String) -> Result<Vec<Point<f64>>, CustomError>
             if first_word != "x,y" {
                 return Err(CustomError::new("Invalid file structure."));
             }
-        },
+        }
         None => return Err(CustomError::new("Empty file.")),
     }
 
@@ -84,7 +84,7 @@ fn parse_file_contents(contents: String) -> Result<Vec<Point<f64>>, CustomError>
         let x = numbers.pop_front().unwrap();
         let y = numbers.pop_front().unwrap();
 
-        points.push(Point{ x, y });
+        points.push(Point { x, y });
     }
 
     return Ok(points);
@@ -94,7 +94,7 @@ fn input_f64() -> Result<f64, CustomError> {
     let mut input = String::new();
 
     match io::stdin().read_line(&mut input) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => return Err(CustomError::new(&e.to_string())),
     }
 

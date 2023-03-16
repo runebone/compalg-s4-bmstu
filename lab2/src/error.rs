@@ -8,7 +8,9 @@ pub struct CustomError {
 
 impl CustomError {
     pub fn new(message: &str) -> CustomError {
-        CustomError { message: message.to_string() }
+        CustomError {
+            message: message.to_string(),
+        }
     }
 }
 
