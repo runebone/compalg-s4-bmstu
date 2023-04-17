@@ -62,3 +62,29 @@ def interpolate_spline_4d(x, y, z, x_list, y_list, z_list, table_3d):
     result = CubicSpline(z_list, new_table_1d)(z)
 
     return result
+
+# Mixed interpolation
+
+def interpolate_mix_3d(x, y, nx, ny, x_list, y_list, table_2d):
+    new_table_1d = []
+    for i in range(len(y_list)):
+        interp_result = interpolate_newton_2d(x, nx, x_list, table_2d[i])
+        # interp_result = interpolate_spline_2d(x, x_list, table_2d[i])
+
+        new_table_1d.append(interp_result)
+
+    result = interpolate_newton(y, ny, y_list, new_table_1d)(y)
+    # result = CubicSpline(y_list, new_table_1d)(y)
+
+    return result
+
+def interpolate_mix_4d(x, y, z, nx, ny, nz, x_list, y_list, z_list, table_3d):
+    new_table_1d = []
+    for i in range(len(z_list)):
+        interp_result = interpolate_mix_3d(x, y, nx, ny, x_list, y_list, table_3d[i])
+        new_table_1d.append(interp_result)
+
+    result = CubicSpline(z_list, new_table_1d)(z)
+    # result = interpolate_newton(z, nz, z_list, new_table_1d)(z)
+
+    return result
