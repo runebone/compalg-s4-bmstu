@@ -35,3 +35,30 @@ def interpolate_newton_4d(x, y, z, nx, ny, nz, x_list, y_list, z_list, table_3d)
     result = interpolate_newton(z, nz, z_list, new_table_1d)(z)
 
     return result
+
+from scipy.interpolate import CubicSpline
+
+def interpolate_spline_2d(x, x_list, table_1d):
+    result = CubicSpline(x_list, table_1d)(x)
+
+    return result
+
+def interpolate_spline_3d(x, y, x_list, y_list, table_2d):
+    new_table_1d = []
+    for i in range(len(y_list)):
+        interp_result = interpolate_spline_2d(x, x_list, table_2d[i])
+        new_table_1d.append(interp_result)
+
+    result = CubicSpline(y_list, new_table_1d)(y)
+
+    return result
+
+def interpolate_spline_4d(x, y, z, x_list, y_list, z_list, table_3d):
+    new_table_1d = []
+    for i in range(len(z_list)):
+        interp_result = interpolate_spline_3d(x, y, x_list, y_list, table_3d[i])
+        new_table_1d.append(interp_result)
+
+    result = CubicSpline(z_list, new_table_1d)(z)
+
+    return result
