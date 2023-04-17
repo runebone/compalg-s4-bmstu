@@ -3,8 +3,7 @@ import numpy as np
 def interpolate_newton(x, n, x_list, y_list):
     x_list, y_list = sort_first_array_apply_permutation_to_second(x_list, y_list)
 
-    x_nearest_index = get_x_nearest_index(x, x_list)
-    start, end = get_start_end_bounds(x_nearest_index, n + 1)
+    start, end = get_start_end_bounds(x, x_list, n + 1)
 
     x_list = x_list[start:end]
     y_list = y_list[start:end]
@@ -50,17 +49,31 @@ def calculate_divided_differnces(x_list, y_list):
 
     return result_dds
 
-def get_start_end_bounds(index, n_points):
-    start = index - n_points // 2
-    end = index + n_points // 2
+def get_start_end_bounds(x, x_list, n_points):
+    index = get_x_nearest_index(x, x_list)
 
-    # End is exclusive
-    if n_points % 2 == 1:
-        end += 1
+    start = index
+    end = index + 1 # End is exclusive
 
-    if start < 0:
-        end -= start
-        start -= start
+    total_points = len(x_list)
+
+    assert n_points < total_points
+
+    i = 0 # Start choosing from the next of current_point_index
+    if x < x_list[index]:
+        i = 1 # Start choosing from the prev of current_point_index
+
+    for _ in range(1, n_points):
+        if i % 2 == 0:
+            if end < total_points:
+                end += 1
+            if start > 0:
+                i += 1
+        else:
+            if start > 0:
+                start -= 1
+            if end < total_points:
+                i += 1
 
     return start, end
 
