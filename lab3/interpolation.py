@@ -1,7 +1,9 @@
 from newton import interpolate_newton
 
 def interpolate_newton_2d(x, nx, x_list, table_1d):
-    return interpolate_newton(x, nx, x_list, table_1d)(x)
+    result = interpolate_newton(x, nx, x_list, table_1d)(x)
+
+    return result
 
 def interpolate_newton_3d(x, y, nx, ny, x_list, y_list, table_2d):
     """
