@@ -10,9 +10,9 @@ def interpolate_newton(x, n, x_list, y_list):
 
     dd_list = calculate_divided_differnces(x_list, y_list)
 
-    return get_newton_polynome_func(x_list, dd_list)
+    return get_newton_polynomial_func(x_list, dd_list)
 
-def get_newton_polynome_func(x_list, dd_list):
+def get_newton_polynomial_func(x_list, dd_list):
     def func(x):
         result = 0
 
