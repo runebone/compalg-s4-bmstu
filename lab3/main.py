@@ -1,7 +1,7 @@
 import numpy as np
-from interpolation import interpolate_newton_4d
-from interpolation import interpolate_spline_4d
-from interpolation import interpolate_mix_4d
+from interpolation import interpolate_newton_3d
+from interpolation import interpolate_spline_3d
+from interpolation import interpolate_mix_3d
 
 data = np.ndarray(shape=(5,5,5), buffer=np.array([
     0,  1,  4,  9,  16,
@@ -44,6 +44,12 @@ if __name__ == "__main__":
     nz = 1
     l = np.arange(0, 5, 1)
 
-    print(interpolate_newton_4d(x, y, z, nx, ny, nz, l, l, l, data))
-    print(interpolate_spline_4d(x, y, z, l, l, l, data))
-    print(interpolate_mix_4d(x, y, z, nx, ny, nz, l, l, l, data))
+    newton = interpolate_newton_3d(x, y, z, nx, ny, nz, l, l, l, data)
+    spline = interpolate_spline_3d(x, y, z, l, l, l, data)
+    mix = interpolate_mix_3d(x, y, z, nx, ny, nz, l, l, l, data)
+
+    print("{:<7}: {:.3f}".format("Newton", newton));
+    print("{:<7}: {:.3f}".format("Spline", spline));
+    print("{:<7}: {:.3f}".format("Mix", mix));
+
+    print(data)
