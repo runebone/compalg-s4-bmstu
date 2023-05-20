@@ -10,6 +10,9 @@ mod point;
 use point::Point;
 
 mod cubic_spline;
+use cubic_spline::{LeftNewtonRightZeroEdges, BothNewtonEdges};
+
+mod newton;
 mod edge;
 
 fn main() -> Result<(), CustomError> {
@@ -30,19 +33,60 @@ fn main() -> Result<(), CustomError> {
         Err(e) => return Err(e),
     };
 
+    println!("Table:");
+    for i in 0..data.len() {
+        println!("{:6} {:6}", data[i].x, data[i].y);
+    }
+
     println!("Input x (f64): ");
     let x: f64 = match input_f64() {
         Ok(value) => value,
         Err(e) => return Err(e),
     };
     
+    let n = data.len();
     let mut cs = cubic_spline::CubicSpline::new(&data);
 
     cs.compute();
 
-    let f = cs.func();
+    {
+        let f = cs.func();
 
-    dbg!(f(x));
+        // println!("Spline interp. (Natural) at x = {}: {}", data[0].x, f(data[0].x));
+        // println!("Spline interp. (Natural) at x = {}: {}", data[5].x, f(data[5].x));
+        // println!("Spline interp. (Natural) at x = {}: {}", data[n - 1].x, f(data[n - 1].x));
+        println!("Spline interp. (Natural) at x = {}: {}", x, f(x));
+    }
+
+    cs.set_edges_strategy(Box::new(LeftNewtonRightZeroEdges));
+    cs.compute();
+
+    {
+        let f = cs.func();
+
+        // println!("Spline interp. (LeftNewton) at x = {}: {}", data[0].x, f(data[0].x));
+        // println!("Spline interp. (LeftNewton) at x = {}: {}", data[5].x, f(data[5].x));
+        // println!("Spline interp. (LeftNewton) at x = {}: {}", data[n - 1].x, f(data[n - 1].x));
+        println!("Spline interp. (LeftNewton) at x = {}: {}", x, f(x));
+    }
+
+    cs.set_edges_strategy(Box::new(BothNewtonEdges));
+    cs.compute();
+
+    {
+        let f = cs.func();
+
+        // println!("Spline interp. (BothNewton) at x = {}: {}", data[0].x, f(data[0].x));
+        // println!("Spline interp. (BothNewton) at x = {}: {}", data[5].x, f(data[5].x));
+        // println!("Spline interp. (BothNewton) at x = {}: {}", data[n - 1].x, f(data[n - 1].x));
+        println!("Spline interp. (BothNewton) at x = {}: {}", x, f(x));
+    }
+
+    {
+        let f = newton::get_newton_interpolation_func(&data, x, 3);
+
+        println!("Newton interp. at x = {}: {}", x, f(x));
+    }
 
     return Ok(());
 }

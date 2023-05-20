@@ -68,6 +68,7 @@ impl<'a> CubicSpline<'a> {
         Box::new(move |x| {
             let mut i = 0;
 
+            // XXX
             while self.data[i + 1].x < x {
                 i += 1;
             }
@@ -116,7 +117,7 @@ fn calculate_interval_lengths(dxs: &mut Vec<f64>, data: &Points<f64>) {
     }
 }
 
-trait EdgesStrategy {
+pub trait EdgesStrategy {
     fn get_edges(&self, data: &Points<f64>) -> (f64, f64);
 }
 
@@ -125,6 +126,38 @@ struct NaturalEdges;
 impl EdgesStrategy for NaturalEdges {
     fn get_edges(&self, _data: &Points<f64>) -> (f64, f64) {
         (0.0, 0.0)
+    }
+}
+
+use crate::newton;
+
+pub struct LeftNewtonRightZeroEdges;
+
+impl EdgesStrategy for LeftNewtonRightZeroEdges {
+    fn get_edges(&self, data: &Points<f64>) -> (f64, f64) {
+        let min_x = data[0].x; // XXX
+        let dds = newton::newton_calculate_dds(data, 0, 3); // XXX
+
+        let l_newton = dds[1] + dds[2] * (4.0 * min_x - 2.0 * data[2].x); // XXX
+
+        (l_newton, 0.0)
+    }
+}
+
+pub struct BothNewtonEdges;
+
+impl EdgesStrategy for BothNewtonEdges {
+    fn get_edges(&self, data: &Points<f64>) -> (f64, f64) {
+        let n = data.len();
+        let min_x = data[0].x; // XXX
+        let max_x = data[n - 1].x; // XXX
+        let l_dds = newton::newton_calculate_dds(data, 0, 3); // XXX
+        let r_dds = newton::newton_calculate_dds(data, n - 4, n - 1); // XXX
+
+        let l_newton = l_dds[1] + l_dds[2] * (4.0 * min_x - 2.0 * data[2].x); // XXX
+        let r_newton = r_dds[1] + r_dds[2] * (4.0 * max_x - 2.0 * data[n - 3].x); // XXX
+
+        (l_newton, r_newton)
     }
 }
 
